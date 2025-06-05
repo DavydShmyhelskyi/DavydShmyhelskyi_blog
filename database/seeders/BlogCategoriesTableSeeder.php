@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Seeder;
+use App\Models\BlogPost; 
 
 class BlogCategoriesTableSeeder extends Seeder
 {
