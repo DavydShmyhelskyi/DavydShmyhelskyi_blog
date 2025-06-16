@@ -2,26 +2,21 @@
 
 namespace App\Jobs\GenerateCatalog;
 
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Queue\Queueable;
-
-class GeneratePricesFileChunkJob implements ShouldQueue
+class GeneratePricesFileChunkJob extends AbstractJob
 {
-    use Queueable;
+    protected $chunk;
+    protected $fileNum;
 
-    /**
-     * Create a new job instance.
-     */
-    public function __construct()
+    public function __construct($chunk, $fileNum)
     {
-        //
+        parent::__construct();
+        $this->chunk = $chunk;
+        $this->fileNum = $fileNum;
     }
 
-    /**
-     * Execute the job.
-     */
     public function handle(): void
     {
-        //
+        $this->debug('processing chunk ' . $this->fileNum . ' with products: ' . implode(',', $this->chunk->toArray()));
+        parent::handle();
     }
 }
