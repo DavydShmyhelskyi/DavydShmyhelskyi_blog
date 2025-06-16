@@ -8,6 +8,8 @@ use App\Repositories\BlogCategoryRepository;
 use App\Http\Requests\BlogPostUpdateRequest;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Jobs\BlogPostAfterCreateJob; // ДОДАНО: імпорт Job
+use App\Jobs\BlogPostAfterDeleteJob; // ДОДАНО: імпорт Job
 
 class PostController extends BaseController
 {
@@ -58,6 +60,7 @@ class PostController extends BaseController
         $item = (new BlogPost())->create($data); //створюємо об'єкт і додаємо в БД
 
         if ($item) {
+            BlogPostAfterCreateJob::dispatch($item);
             return redirect()
                 ->route('blog.admin.posts.edit', [$item->id])
                 ->with(['success' => 'Успішно збережено']);
@@ -122,6 +125,20 @@ class PostController extends BaseController
      */
     public function destroy(string $id)
     {
-        //
+        $result = BlogPost::destroy($id); // софт-деліт, запис залишається
+    
+        // Альтернативно для повного видалення:
+        // $result = BlogPost::find($id)->forceDelete();
+        
+        if ($result) {
+            BlogPostAfterDeleteJob::dispatch($id)->delay(20);
+            return redirect()
+                ->route('blog.admin.posts.index')
+                ->with(['success' => "Запис id[$id] видалено"]);
+        } else {
+            return back()
+                ->withErrors(['msg' => 'Помилка видалення']);
+        }
     }
+
 }
